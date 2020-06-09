@@ -53,8 +53,8 @@ cube_vertices['colors'] = (0, 1, 1, 1), (0, 0, 1, 1), (0, 0, 0, 1), (0, 1, 0, 1)
 
 translations = []
 
-for x in range(0, 101, 2):
-    for y in range(0, 41, 2):
+for x in range(0, 101, 4):
+    for y in range(0, 41, 4):
         identity = np.eye(4, dtype='f4')
         translations.append(np.array(glm.translate(identity, np.array([x-50, y-20, 0], 'f4'))))
 
