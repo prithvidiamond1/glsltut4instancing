@@ -59,6 +59,7 @@ for x in range(0, 101, 2):
         translations.append(np.array(glm.translate(identity, np.array([x-50, y-20, 0], 'f4'))))
 
 translations = np.array(translations, 'f4')
+instances = len(translations)
 
 indices = np.array([0,1,2, 0,2,3,  0,3,4, 0,4,5,  0,5,6, 0,6,1,
                     1,6,7, 1,7,2,  7,4,3, 7,3,2,  4,7,6, 4,6,5], dtype=np.uint32)
@@ -96,7 +97,7 @@ while not glfw.window_should_close(window):
     model1 = glm.rotate(model1, phi, np.array((0, 1, 0), 'f4'))
     prog1['model'].write(model1)
 
-    vao_i.render(moderngl.TRIANGLES)
+    vao_i.render(moderngl.TRIANGLES, instances=instances)
 
     glfw.swap_buffers(window)
     glfw.poll_events()
