@@ -12,9 +12,9 @@ void main() {
     float xz = min(abs(v_position.x), abs(v_position.z));
     float yz = min(abs(v_position.y), abs(v_position.z));
 
-    float b_width1 = 0.04;
-    float b_width2 = 0.04;
-    float c_width = 0.22;
+    float b_width1 = 0.04;  // default values = 0.04
+    float b_width2 = 0.04;  // default values = 0.04
+    float c_width = 0.22;   // default values = 0.22
 
     float border1 = 1-b_width1;
     float border2 = (1-(b_width1+c_width));

@@ -54,12 +54,15 @@ cube_vertices['colors'] = (0, 1, 1, 1), (0, 0, 1, 1), (0, 0, 0, 1), (0, 1, 0, 1)
 translations = []
 
 for x in range(0, 101, 4):
-    for y in range(0, 41, 4):
-        identity = np.eye(4, dtype='f4')
-        translations.append(np.array(glm.translate(identity, np.array([x-50, y-20, 0], 'f4'))))
+    for y in range(0, 51, 4):
+        for z in range(0, 51, 4):
+        # for z in range(0, 4, 4):
+            identity = np.eye(4, dtype='f4')
+            translations.append(np.array(glm.translate(identity, np.array([x-50, y-25, z-25], 'f4'))))
 
 translations = np.array(translations, 'f4')
 instances = len(translations)
+print(instances)
 
 indices = np.array([0,1,2, 0,2,3,  0,3,4, 0,4,5,  0,5,6, 0,6,1,
                     1,6,7, 1,7,2,  7,4,3, 7,3,2,  4,7,6, 4,6,5], dtype=np.uint32)
@@ -73,7 +76,7 @@ view1 = np.eye(4, dtype='f4')
 model1 = np.eye(4, dtype='f4')
 
 # model1 = glm.translate(model1, np.array((-50, 20, 0), 'f4'))
-view1 = glm.translate(view1, np.array((0, 0, -50), 'f4'))
+view1 = glm.translate(view1, np.array((0, 0, -55), 'f4'))
 
 prog1['projection'].write(projection1)
 prog1['view'].write(view1)

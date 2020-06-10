@@ -12,7 +12,7 @@ in mat4 translation;
 out vec3 v_position;
 out vec4 v_color;
 
-mat4 pvm = projection*view*translation*model;
+mat4 pvm = projection*view*model*translation;
 
 void main() {
     gl_Position = pvm*vec4(position, 1.0);
