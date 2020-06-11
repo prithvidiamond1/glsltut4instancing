@@ -8,6 +8,8 @@ from glfw import GLFW
 
 import glm
 
+enable_query = False
+
 glfw.init()
 
 # setting context flags
@@ -34,14 +36,14 @@ def window_quit(window, key, scancode, action, mods):
         glfw.set_window_should_close(window, GLFW.GLFW_TRUE)
 
 def window_resize(window, w, h):
-    projection1 = np.array(glm.perspective(45.0, float(w/(h+0.00001)), 2.0, 100.0), 'f4')
+    projection1 = np.array(glm.perspective(45.0, float(w/(h+0.00001)), 2.0, 200.0), 'f4')
     prog1['projection'].write(projection1)
     ctx.viewport = (0, 0, w, h)
 
 glfw.set_key_callback(window, window_quit)
 glfw.set_window_size_callback(window, window_resize)
 
-glfw.swap_interval(1)
+glfw.swap_interval(1) # Toggles V-sync
 
 prog1 = ctx.program(
     vertex_shader=open('prog1.vert', 'r').read(),
@@ -72,12 +74,12 @@ vbo1 = ctx.buffer(cube_vertices)
 vbo2 = ctx.buffer(translations)
 index_ibo = ctx.buffer(indices)
 
-projection1 = np.array(glm.perspective(45.0, float(width/(height+0.00001)), 2.0, 100.0), 'f4')
+projection1 = np.array(glm.perspective(45.0, float(width/(height+0.00001)), 2.0, 200.0), 'f4')
 view1 = np.eye(4, dtype='f4')
 model1 = np.eye(4, dtype='f4')
 
 # model1 = glm.translate(model1, np.array((-50, 20, 0), 'f4'))
-view1 = glm.translate(view1, np.array((0, 0, -55), 'f4'))
+view1 = glm.translate(view1, np.array((0, 0, -150), 'f4'))
 
 prog1['projection'].write(projection1)
 prog1['view'].write(view1)
@@ -100,6 +102,9 @@ frames = 0
 avg_frames, avg_count = 0, 1
 init_time = start_time = time.time()
 
+if enable_query:
+    query = ctx.query(samples=True, time=True, primitives=True) # for quering info about no of samples, time elapsed and no of primitives
+
 while not glfw.window_should_close(window):
     frames += 1
 
@@ -114,7 +119,11 @@ while not glfw.window_should_close(window):
     model1 = glm.rotate(model1, phi, np.array((0, 1, 0), 'f4'))
     prog1['model'].write(model1)
 
-    vao.render(moderngl.TRIANGLES, instances=instances)
+    if enable_query:
+        with query:
+            vao.render(moderngl.TRIANGLES, instances=instances)
+    else:
+        vao.render(moderngl.TRIANGLES, instances=instances)
 
     glfw.swap_buffers(window)
     glfw.poll_events()
@@ -126,8 +135,11 @@ while not glfw.window_should_close(window):
             start_time = time.time()
         if time.time()-init_time >= 60:
             print('Average Framerate =', avg_frames)
+            if enable_query:
+                print('samples =', query.samples)
+                print('elapsed =', query.elapsed)
+                print('primitives =', query.primitives)
             glfw.set_window_should_close(window, GLFW.GLFW_TRUE)
-
 
 glfw.destroy_window(window)
 
