@@ -1,5 +1,6 @@
 
 import numpy as np
+import time
 
 import moderngl
 import glfw
@@ -21,7 +22,7 @@ glfw.window_hint(glfw.DOUBLEBUFFER, True)
 glfw.window_hint(glfw.DEPTH_BITS, 24)
 glfw.window_hint(glfw.SAMPLES, 8)  # For MSAA*x where x is the integer > 0
 
-width, height = 512, 512
+width, height = 1920, 1080
 window = glfw.create_window(width, height, 'GLSLtut', None, None)
 
 glfw.make_context_current(window)
@@ -62,7 +63,7 @@ for x in range(0, 101, 4):
 
 translations = np.array(translations, 'f4')
 instances = len(translations)
-print(instances)
+print('Total no of cubes =', instances)
 
 indices = np.array([0,1,2, 0,2,3,  0,3,4, 0,4,5,  0,5,6, 0,6,1,
                     1,6,7, 1,7,2,  7,4,3, 7,3,2,  4,7,6, 4,6,5], dtype=np.uint32)
@@ -82,13 +83,26 @@ prog1['projection'].write(projection1)
 prog1['view'].write(view1)
 prog1['model'].write(model1)
 
-vao_i = ctx.vertex_array(prog1, ((vbo1, '3f 4f', 'position', 'color'), (vbo2, '16f/i', 'translation')), index_buffer=index_ibo)
+vao = ctx.vertex_array(prog1, ((vbo1, '3f 4f', 'position', 'color'), (vbo2, '16f/i', 'translation')), index_buffer=index_ibo)
 
 theta = phi = 0
 
-ctx.enable(ctx.DEPTH_TEST)
+# ctx.enable(ctx.DEPTH_TEST) # for testing without culling
+
+ctx.enable(ctx.DEPTH_TEST|ctx.CULL_FACE) # for testing with culling
+ctx.cull_face = 'back'
+ctx.front_face = 'ccw'
+
+# Framerate measuring stuff
+framerate_test = True
+
+frames = 0
+avg_frames, avg_count = 0, 1
+init_time = start_time = time.time()
 
 while not glfw.window_should_close(window):
+    frames += 1
+
     ctx.screen.use()
     ctx.screen.clear(1.0, 1.0, 1.0, 1.0)
     
@@ -100,10 +114,20 @@ while not glfw.window_should_close(window):
     model1 = glm.rotate(model1, phi, np.array((0, 1, 0), 'f4'))
     prog1['model'].write(model1)
 
-    vao_i.render(moderngl.TRIANGLES, instances=instances)
+    vao.render(moderngl.TRIANGLES, instances=instances)
 
     glfw.swap_buffers(window)
     glfw.poll_events()
+
+    if framerate_test:
+        if time.time()-start_time >= 1:
+            avg_frames = ((avg_count-1)*avg_frames + frames)*avg_count
+            frames = 0
+            start_time = time.time()
+        if time.time()-init_time >= 60:
+            print('Average Framerate =', avg_frames)
+            glfw.set_window_should_close(window, GLFW.GLFW_TRUE)
+
 
 glfw.destroy_window(window)
 
