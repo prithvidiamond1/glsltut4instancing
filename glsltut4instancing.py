@@ -106,8 +106,6 @@ if enable_query:
     query = ctx.query(samples=True, time=True, primitives=True) # for quering info about no of samples, time elapsed and no of primitives
 
 while not glfw.window_should_close(window):
-    frames += 1
-
     ctx.screen.use()
     ctx.screen.clear(1.0, 1.0, 1.0, 1.0)
     
@@ -129,6 +127,7 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     if framerate_test:
+        frames += 1
         if time.time()-start_time >= 1:
             avg_frames = ((avg_count-1)*avg_frames + frames)*avg_count
             frames = 0
